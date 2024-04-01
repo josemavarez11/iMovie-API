@@ -1,98 +1,98 @@
 import { NextFunction, Request, Response } from "express"
+import message from '../json/messages.json';
 import UserModel from "../models/userModel";
 
 class UserController {
-    static async delete(req: Request, res: Response, next: NextFunction) {
+    async delete(req: Request, res: Response, next: NextFunction) {
         const id = (req as any).user;
-        console.log('id', id);
-        if(!id) return res.status(400).json({ message: 'Id is required to delete a user.' });
+        if(!id) return res.status(400).json({ message: message.error.MissingFields });
 
         try {
             const user = await UserModel.findById(id);
-            if(!user) return res.status(400).json({ message: 'User not found' });
+            if(!user) return res.status(400).json({ message: message.error.UserNotFound });
 
             user.deleted = true;
             await user.save();
 
-            res.status(200).json({ message: 'User deleted successfully' });
+            res.status(200).json({ message: message.success.DeleteOk });
         } catch (error: any) {
             return res.status(500).json({ message: error.message });
         }
     }
 
-    static async updateEmail(req: Request, res: Response, next: NextFunction) {
+    async updateEmail(req: Request, res: Response, next: NextFunction) {
         const id = (req as any).user;
         const { newEmail } = req.body;
 
-        if(!id || !newEmail) return res.status(400).json({ message: 'Id and new email are required to update email.' });
+        if(!id || !newEmail) return res.status(400).json({ message: message.error.MissingFields });
 
         try {
             const user = await UserModel.findById(id);
-            if(!user) return res.status(400).json({ message: 'User not found' });
+            if(!user) return res.status(400).json({ message: message.error.UserNotFound });
 
             const emailMatch = user.compareEmail(newEmail);
-            if(emailMatch) return res.status(400).json({ message: 'New email is the same as the current email. No changes made.' });
+            if(emailMatch) return res.status(400).json({ message: message.warning.NoChangesMade });
 
             user.email = newEmail;
             await user.save();
 
-            res.status(200).json({ message: 'Email updated successfully' });
+            res.status(200).json({ message: message.success.UpdateOk });
         } catch (error: any) {
             return res.status(500).json({ message: error.message });
         }
     }
 
-    static async updateNickname(req: Request, res: Response, next: NextFunction) {
+    async updateNickname(req: Request, res: Response, next: NextFunction) {
         const id = (req as any).user;
         const { newNickname } = req.body;
 
-        if(!id || !newNickname) return res.status(400).json({ message: 'Id and new nickname are required to update nickname.' });
+        if(!id || !newNickname) return res.status(400).json({ message: message.error.MissingFields });
 
         try {
             const user = await UserModel.findById(id);
-            if(!user) return res.status(400).json({ message: 'User not found' });
+            if(!user) return res.status(400).json({ message: message.error.UserNotFound });
 
             const nicknameMatch = user.compareNickname(newNickname);
-            if(nicknameMatch) return res.status(400).json({ message: 'New nickname is the same as the current nickname. No changes made.' });
+            if(nicknameMatch) return res.status(400).json({ message: message.warning.NoChangesMade });
 
             user.nickname = newNickname;
             await user.save();
 
-            res.status(200).json({ message: 'Nickname updated successfully' });
+            res.status(200).json({ message: message.success.UpdateOk });
         } catch (error: any) {
             return res.status(500).json({ message: error.message });
         }
     }
 
-    static async updatePassword(req: Request, res: Response, next: NextFunction) {
+    async updatePassword(req: Request, res: Response, next: NextFunction) {
         const id = (req as any).user;
         const { newPassword } = req.body;
 
-        if(!id || !newPassword) return res.status(400).json({ message: 'Id and new password are required to update password.' });
+        if(!id || !newPassword) return res.status(400).json({ message: message.error.MissingFields });
 
         try {
             const user = await UserModel.findById(id);
-            if(!user) return res.status(400).json({ message: 'User not found' });
+            if(!user) return res.status(400).json({ message: message.error.UserNotFound });
 
             const passwordMatch = await user.comparePassword(newPassword);
-            if(passwordMatch) return res.status(400).json({ message: 'New password is the same as the current password. No changes made.' });
+            if(passwordMatch) return res.status(400).json({ message: message.warning.NoChangesMade });
 
             user.password = newPassword;
             await user.save();
 
-            res.status(200).json({ message: 'Password updated successfully' });
+            res.status(200).json({ message: message.success.UpdateOk });
         } catch (error: any) {
             return res.status(500).json({ message: error.message });
         }
     }
 
-    static async getNickname(req: Request, res: Response, next: NextFunction) { 
+    async getNickname(req: Request, res: Response, next: NextFunction) { 
         const id = req.body.id || (req as any).user;
-        if(!id) return res.status(400).json({ message: 'Id is required to get a nickname.' });
+        if(!id) return res.status(400).json({ message: message.error.MissingFields });
 
         try {
             const user = await UserModel.findById(id);
-            if(!user) return res.status(400).json({ message: 'User not found' });
+            if(!user) return res.status(400).json({ message: message.error.UserNotFound });
 
             res.status(200).json({ nickname: user.nickname });
         } catch (error: any) {

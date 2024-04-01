@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import message from '../json/messages.json';
 
 /**
  * Connects to MongoDB using the provided MONGODB_URI from the environment variables.
@@ -10,9 +11,9 @@ const mongoConnection = async (): Promise<void> => {
     try {
         const mongodbUri = process.env.MONGODB_URI || ''; // Set a default value if MONGODB_URI is undefined
         await mongoose.connect(mongodbUri);
-        console.log('Connected to MongoDB');
+        console.log(message.success.MongoConnection.description);
     } catch (error) {
-        console.log('Error connecting to MongoDB:', error);
+        console.log(message.error.MongoConnection, error);
     }
 };
 

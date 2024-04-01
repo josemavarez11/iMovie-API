@@ -2,11 +2,12 @@ import { Router } from "express";
 import UserController from "../controllers/userController";
 
 const userRouter = Router();
+const user = new UserController();
 
-userRouter.get('/getNickname', UserController.getNickname); //tested ok
-userRouter.put('/updateNickname', UserController.updateNickname); //tested ok
-userRouter.put('/updatePassword', UserController.updatePassword); //tested ok
-userRouter.put('/updateEmail', UserController.updateEmail); //tested ok
-userRouter.delete('/delete', UserController.delete); //tested ok
+userRouter.get('/getNickname', user.getNickname); //tested ok
+userRouter.put('/updateNickname', user.updateNickname); //tested ok
+userRouter.put('/updatePassword', user.updatePassword); //tested ok
+userRouter.put('/updateEmail', user.updateEmail); //tested ok
+userRouter.delete('/delete', user.delete); //tested ok
 
 export default userRouter;

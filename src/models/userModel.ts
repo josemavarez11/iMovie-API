@@ -5,14 +5,14 @@ import { getModelForClass, prop, pre } from "@typegoose/typegoose";
     if (!this.isModified("password")) return next(); // If password is not modified, skip hashing
     
     try {
-        const salt = await bcrypt.genSalt(10); // Generate a salt with 10 rounds
-        this.password = await bcrypt.hash(this.password, salt); // Hash the password with the generated salt
-        next(); // Proceed to save the document
+        const salt = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password, salt);
+        next();
     } catch (error: any) {
-        next(error); // Pass any error to the next middleware
+        next(error);
     }
 })
-class User {
+export class User {
     @prop({ required: true, unique: false })
     nickname!: string;
 
@@ -22,11 +22,14 @@ class User {
     @prop({ required: true, unique: false })
     password!: string;
 
+    @prop({ required: false, unique: false, default: process.env.DEFAULT_USER_PIC })
+    url_image?: string;
+
     @prop({ default: false, unique: false })
     deleted?: boolean;
 
     async comparePassword(password: string): Promise<boolean> {
-        return await bcrypt.compare(password, this.password); // Compare plain text password with hashed password
+        return await bcrypt.compare(password, this.password);
     }
 
     compareNickname(nickname: string): boolean {
