@@ -1,13 +1,7 @@
 import { NextFunction, Request, Response } from "express"
 import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
-
-import getEnvPath from '../utils/getEnvPath';
 import message from '../json/messages.json';
 import UserModel from '../models/userModel';
-
-const envPath = getEnvPath();
-dotenv.config({ path: envPath });
 
 class AuthController {
 
