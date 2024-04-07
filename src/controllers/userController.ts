@@ -88,7 +88,6 @@ class UserController {
 
     async getData(req: Request, res: Response, next: NextFunction) { 
         const id = req.body.id || (req as any).user;
-        console.log(id);
         if(!id) return res.status(400).json({ message: message.error.MissingFields });
 
         try {
