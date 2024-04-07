@@ -86,7 +86,7 @@ class UserController {
         }
     }
 
-    async getData(req: Request, res: Response, next: NextFunction) { 
+    async getNickname(req: Request, res: Response, next: NextFunction) { 
         const id = req.body.id || (req as any).user;
         if(!id) return res.status(400).json({ message: message.error.MissingFields });
 
@@ -94,12 +94,7 @@ class UserController {
             const user = await UserModel.findById(id);
             if(!user) return res.status(400).json({ message: message.error.UserNotFound });
 
-            return res.status(200).json({ 
-                nickname: user.nickname,
-                email: user.email,
-                password: user.password,
-                url_image: user.url_image,
-            });
+            res.status(200).json({ nickname: user.nickname });
         } catch (error: any) {
             return res.status(500).json({ message: error.message });
         }
