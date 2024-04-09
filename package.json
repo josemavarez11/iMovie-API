@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon ./src/app.ts",
     "build": "tsc",
-    "start": "node ./dist/app.js"
+    "start": "MONGODB_URI=mongodb+srv://josemmr11:Atriana.2712@cluster0.x5yuiiw.mongodb.net/imovie JWT_SECRET=Usc8KzZNN5lGLH433R1nzOnYqEcWARqf DEFAULT_USER_PIC=https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png node ./dist/app.js"
   },
   "keywords": [],
   "author": "",
