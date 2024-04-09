@@ -9,6 +9,5 @@ reviewRouter.delete('/delete', review.delete);
 reviewRouter.put('/updateContent', review.updateContent);
 reviewRouter.put('/updateScore', review.updateScore);
 reviewRouter.get('/getAllByUserId', review.getAllByUserId);
-reviewRouter.post('/getAllByMovieId', review.getAllByMovieId);
 
 export default reviewRouter;

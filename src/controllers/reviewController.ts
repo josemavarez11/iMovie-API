@@ -100,13 +100,10 @@ class ReviewController {
         }
     }
 
-    async getAllByMovieId(req: Request, res: Response, next: NextFunction) { //tested ok
-        const { movieId } = req.body;
-        if (!movieId) return res.status(400).json({ message: message.error.MissingFields });
-
+    static async getAllByMovieId(movieId: number) { //tested ok
         try {
             const reviews = await ReviewModel.find({ movieId, deleted: false });
-            if (reviews.length === 0) return res.status(404).json({ message: message.error.ReviewNotFound });
+            if (reviews.length === 0) return null;
 
             const formattedReviews = await Promise.all(reviews.map(async review => {
                 const user = await UserModel.findById(review.user);
@@ -122,9 +119,9 @@ class ReviewController {
                 }
             }));
 
-            return res.status(200).json(formattedReviews);
+            return formattedReviews;
         } catch (error: any) {
-            return res.status(500).json({ message: error.message });
+            return { message: error.message };
         }
     }
 }

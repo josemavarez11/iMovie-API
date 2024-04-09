@@ -6,6 +6,9 @@
         "NoToken": {
             "description": "No token has been provided"
         },
+        "TMDBError": {
+            "description": "Error calling TMDB API"
+        },
         "MongoConnection": {
             "description": "Error connecting to MongoDB"
         },
