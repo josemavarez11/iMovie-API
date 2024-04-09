@@ -86,22 +86,18 @@ class UserController {
         }
     }
 
-    async getData(req: Request, res: Response, next: NextFunction) { 
-        const id = req.body.id || (req as any).user;
-        if(!id) return res.status(400).json({ message: message.error.MissingFields });
-
+    async getData(nickname: string) { 
         try {
-            const user = await UserModel.findById(id);
-            if(!user) return res.status(400).json({ message: message.error.UserNotFound });
+            const user = await UserModel.findOne({ nickname, deleted: false });
+            if(!user) return null;
 
-            return res.status(200).json({ 
+            return { 
                 nickname: user.nickname,
                 email: user.email,
-                password: user.password,
                 url_image: user.url_image,
-            });
+            };
         } catch (error: any) {
-            return res.status(500).json({ message: error.message });
+            return { message: error.message };
         }
     }
 }

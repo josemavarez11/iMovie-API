@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express"
 import jwt from 'jsonwebtoken';
 import message from '../json/messages.json';
 import UserModel from '../models/userModel';
+import UserController from "./userController";
 
 class AuthController {
 
@@ -36,7 +37,10 @@ class AuthController {
 
             const token = jwt.sign({ userId: user._id}, process.env.JWT_SECRET as jwt.Secret);
 
-            res.status(200).json({ message: message.success.LoginOk, token });
+            const userController = new UserController();
+            const userData = await userController.getData(nickname);
+
+            res.status(200).json({ message: message.success.LoginOk, token, userData });
         } catch (error: any) {
             return res.status(500).json({ message: error.message });
         }
