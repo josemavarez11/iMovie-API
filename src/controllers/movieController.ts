@@ -35,6 +35,7 @@ class MovieController {
             const reviews = await ReviewController.getAllByMovieId(movieId);
 
             const formatedResponse = {
+                poster_path: `https://image.tmdb.org/t/p/w500${details.poster_path}`,
                 original_title: details.original_title,
                 runtime: details.runtime,
                 overview: details.overview,

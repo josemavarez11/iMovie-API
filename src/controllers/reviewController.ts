@@ -78,6 +78,8 @@ class ReviewController {
 
     async getAllByUserId(req: Request, res: Response, next: NextFunction) { //tested ok, it still needs the movie poster path 
         const id = (req as any).user;
+        if(!id) return;
+
         try {
             const reviews = await ReviewModel.find({ user: id, deleted: false });
             if(reviews.length === 0) return res.status(404).json({ message: message.error.ReviewNotFound });
