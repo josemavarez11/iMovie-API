@@ -6,14 +6,14 @@ import UserModel from "../models/userModel";
 class ReviewController {
     async create(req: Request, res: Response, next: NextFunction) { //tested ok
         const id = (req as any).user;
-        const { content, score, movieId } = req.body;
+        const { content, score, movieId, poster } = req.body;
         if (!content || !score || !movieId) return res.status(400).json({ message: message.error.MissingFields });
 
         try {
             const reviewExists = await ReviewModel.find({ user: id, movieId, deleted: false});
             if (reviewExists.length > 0) return res.status(400).json({ message: message.error.ExistingReview });
 
-            const review = new ReviewModel({ content, score, user: id, movieId });
+            const review = new ReviewModel({ content, score, user: id, movieId, poster });
             await review.save();
 
             res.status(201).json({ message: message.success.ReviewCreated });

@@ -14,6 +14,9 @@ export class Review {
     @prop({ required: true, unique: false })
     movieId!: string;
 
+    @prop({ required: false, unique: false, default: 'https://motivatevalmorgan.com/wp-content/uploads/2016/06/default-movie-768x1129.jpg'})
+    poster?: string;
+
     @prop({ required: false, default: false })
     deleted?: boolean;
 }
