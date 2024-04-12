@@ -89,6 +89,7 @@ class ReviewController {
                     _id: review._id,
                     content: review.content,
                     score: review.score,
+                    poster: review.poster,
                     movie: {
                         movieId: review.movieId,
                         moviePosterPath: 'get movie poster path here'
