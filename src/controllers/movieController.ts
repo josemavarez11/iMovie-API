@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express"
 import ReviewController from "./reviewController";
+import formatTrailerSearch from "../utils/formatTrailerSearch";
 import message from '../json/messages.json';
 
 class MovieController {
@@ -34,7 +35,24 @@ class MovieController {
             const actors = await responseActorsFetch.json() as any;
             const reviews = await ReviewController.getAllByMovieId(movieId);
 
+            const titleForSearch = formatTrailerSearch(details.original_title);
+            const urlSearchTrailer = `https://www.googleapis.com/youtube/v3/search?key=AIzaSyBWIfnXs70L2d4nMEVJp4-Jzn7_U8a1mEU&part=snippet&q=${titleForSearch}`;
+
+            const responseTrailer = await fetch(urlSearchTrailer, {
+                method: 'GET',
+                headers: { accept: 'application/json' }
+            });
+
+            let trailerId = null
+            
+            if(responseTrailer.status !== 200)  trailerId = null;
+            else {
+                const trailer = await responseTrailer.json() as any;
+                trailerId = trailer.items[0].id.videoId;
+            }
+
             const formatedResponse = {
+                trailerId,
                 poster_path: `https://image.tmdb.org/t/p/w500${details.poster_path}`,
                 original_title: details.original_title,
                 runtime: details.runtime,

@@ -30,7 +30,7 @@ class AuthController {
 
         try {
             const user = await UserModel.findOne({ nickname, deleted: false });
-            if (!user) return res.status(400).json({ message: message.error.InvalidCredentials });
+            if (!user) return res.status(400).json({ message: message.error.UserNotFound });
 
             const passwordMatch = await user.comparePassword(password);
             if (!passwordMatch) return res.status(400).json({ message: message.error.InvalidCredentials });
