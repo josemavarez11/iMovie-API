@@ -6,6 +6,9 @@
         "NoToken": {
             "description": "No token has been provided"
         },
+        "NotResultsFound": {
+            "description": "No results found"
+        },
         "TMDBError": {
             "description": "Error calling TMDB API"
         },
