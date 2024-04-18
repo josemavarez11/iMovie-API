@@ -4,6 +4,7 @@ import formatTrailerSearch from "../utils/formatTrailerSearch";
 import message from '../json/messages.json';
 
 class MovieController {
+
     async getDetailsByMovieId(req: Request, res: Response, next: NextFunction){
         const { movieId } = req.body;
         if(!movieId) return res.status(400).json({ message: message.error.MissingFields });
@@ -131,7 +132,7 @@ class MovieController {
             const tvs = await responseSearchTv.json() as any;
 
             const formatedResponse = {
-                movies: await Promise.all(movies.results.slice(0, 6).map(async (movie: any) => {
+                movies: movies.results.length > 0 ? await Promise.all(movies.results.slice(0, 6).map(async (movie: any) => {
                     let actors = null;
                     let director = null;
                     const urlActors = `https://api.themoviedb.org/3/movie/${movie.id}/credits`;
@@ -161,8 +162,8 @@ class MovieController {
                         actors,
                         director
                     }
-                })),
-                tvs: await Promise.all(tvs.results.slice(0, 6).map(async (tv: any) => {
+                })) : [],
+                tvs: tvs.results.length > 0 ? await Promise.all(tvs.results.slice(0, 6).map(async (tv: any) => {
                     let actors = null;
                     let director = null;
                     const urlActors = `https://api.themoviedb.org/3/tv/${tv.id}/credits`;
@@ -191,7 +192,109 @@ class MovieController {
                         actors,
                         director
                     }
-                }))
+                })) : []
+            }
+
+            return res.status(200).json({ searchResult: formatedResponse });
+        } catch (error: any) {
+            return res.status(500).json({ message: error.message });
+        }
+    }
+
+    async searchByGenre(req: Request, res: Response, next: NextFunction) {
+        const genres = req.body.genres as string[];
+        if(!genres) return res.status(400).json({ message: message.error.MissingFields });
+
+        try {
+            const TMDB_ROOT = 'https://api.themoviedb.org/3';
+            const urlMovies = `${TMDB_ROOT}/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc&with_genres=${genres.join('%')}`;
+            const urlTvs = `${TMDB_ROOT}/discover/tv?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc&with_genres=${genres.join('%')}`;
+            
+            const responseMovies = await fetch(urlMovies, {
+                method: 'GET', 
+                headers: {
+                    accept: 'application/json',
+                    Authorization: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzMjEzODkzMTU1YzJmZjY4OGJkODMyZTRkMWJiZTlhMCIsInN1YiI6IjY2MDJmMjM4Yjg0Y2RkMDE0YWY1NTFiZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.pSTbcbWcScjdicQLg6ssg1HTCr_2CKNW9qhQnynwjME`
+                }
+            });
+
+            if(responseMovies.status !== 200) return res.status(400).json({ message: message.error.TMDBError });
+
+            const responseTvs = await fetch(urlTvs, {
+                method: 'GET', 
+                headers: {
+                    accept: 'application/json',
+                    Authorization: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzMjEzODkzMTU1YzJmZjY4OGJkODMyZTRkMWJiZTlhMCIsInN1YiI6IjY2MDJmMjM4Yjg0Y2RkMDE0YWY1NTFiZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.pSTbcbWcScjdicQLg6ssg1HTCr_2CKNW9qhQnynwjME`
+                }
+            });
+
+            if(responseTvs.status !== 200) return res.status(400).json({ message: message.error.TMDBError });
+
+            const movies = await responseMovies.json() as any;
+            const tvs = await responseTvs.json() as any;
+
+            const formatedResponse = {
+                movies: movies.results.length > 0 ? await Promise.all(movies.results.slice(0, 8).map(async (movie: any) => {
+                    let actors = null;
+                    let director = null;
+                    const urlActors = `https://api.themoviedb.org/3/movie/${movie.id}/credits`;
+                    const responseActors = await fetch(urlActors, {
+                        method: 'GET',
+                        headers: {
+                            accept: 'application/json',
+                            Authorization: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzMjEzODkzMTU1YzJmZjY4OGJkODMyZTRkMWJiZTlhMCIsInN1YiI6IjY2MDJmMjM4Yjg0Y2RkMDE0YWY1NTFiZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.pSTbcbWcScjdicQLg6ssg1HTCr_2CKNW9qhQnynwjME`
+                        }
+                    });
+
+                    if(responseActors.status !== 200) {
+                        actors = null;
+                        director = null;
+                    } else{
+                        const actorsResponse = await responseActors.json() as any;
+                        actors = actorsResponse.cast.map((actor: any) => actor.name);
+                        director = actorsResponse.crew.find((crew: any) => crew.known_for_department === 'Directing')?.name;
+                    }
+
+                    return {
+                        id: movie.id,
+                        title: movie.original_title,
+                        poster_path: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
+                        release_date: movie.release_date,
+                        audience_score: movie.vote_average,
+                        actors,
+                        director
+                    }
+                })) : [],
+                tvs: tvs.results.length > 0 ? await Promise.all(tvs.results.slice(0, 8).map(async (tv: any) => {
+                    let actors = null;
+                    let director = null;
+                    const urlActors = `https://api.themoviedb.org/3/tv/${tv.id}/credits`;
+                    const responseActors = await fetch(urlActors, {
+                        method: 'GET',
+                        headers: {
+                            accept: 'application/json',
+                            Authorization: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzMjEzODkzMTU1YzJmZjY4OGJkODMyZTRkMWJiZTlhMCIsInN1YiI6IjY2MDJmMjM4Yjg0Y2RkMDE0YWY1NTFiZSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.pSTbcbWcScjdicQLg6ssg1HTCr_2CKNW9qhQnynwjME`
+                        }
+                    });
+
+                    if(responseActors.status !== 200) {
+                        actors = null;
+                        director = null;
+                    } else{
+                        const actorsResponse = await responseActors.json() as any;
+                        actors = actorsResponse.cast.map((actor: any) => actor.name);
+                        director = actorsResponse.crew.find((crew: any) => crew.known_for_department === 'Creator')?.name;
+                    }
+                    return {
+                        id: tv.id,
+                        title: tv.original_name,
+                        poster_path: `https://image.tmdb.org/t/p/w500${tv.poster_path}`,
+                        release_date: tv.first_air_date,
+                        audience_score: tv.vote_average,
+                        actors,
+                        director
+                    }
+                })) : []
             }
 
             return res.status(200).json({ searchResult: formatedResponse });

@@ -4,7 +4,7 @@ import ReviewModel from "../models/reviewModel";
 import UserModel from "../models/userModel";
 
 class ReviewController {
-    async create(req: Request, res: Response, next: NextFunction) { //tested ok
+    async create(req: Request, res: Response, next: NextFunction) {
         const id = (req as any).user;
         const { content, score, movieId, poster } = req.body;
         if (!content || !score || !movieId) return res.status(400).json({ message: message.error.MissingFields });
@@ -22,7 +22,7 @@ class ReviewController {
         }
     }
 
-    async delete(req: Request, res: Response, next: NextFunction) { //tested ok
+    async delete(req: Request, res: Response, next: NextFunction) {
         const id = (req as any).user;
         const { movieId } = req.body;
         if (!movieId) return res.status(400).json({ message: message.error.MissingFields });
@@ -40,7 +40,26 @@ class ReviewController {
         }
     }
 
-    async updateContent(req: Request, res: Response, next: NextFunction) { //tested ok
+    async update(req: Request, res: Response, next: NextFunction) {
+        const id = (req as any).user;
+        const { movieId, newContent, newScore } = req.body;
+        if (!movieId && (!newContent || !newScore)) return res.status(400).json({ message: message.error.MissingFields });
+
+        try {
+            const review = await ReviewModel.findOne({ user: id, movieId, deleted: false});
+            if (!review) return res.status(400).json({ message: message.error.ReviewNotFound });
+
+            if (newContent) review.content = newContent;
+            if (newScore) review.score = newScore;
+            await review.save();
+
+            res.status(200).json({ message: message.success.UpdateOk });
+        } catch (error: any) {
+            return res.status(500).json({ message: error.message });
+        }
+    }
+
+    async updateContent(req: Request, res: Response, next: NextFunction) {
         const id = (req as any).user;
         const { movieId, newContent } = req.body;
         if (!movieId || !newContent) return res.status(400).json({ message: message.error.MissingFields });
@@ -58,7 +77,7 @@ class ReviewController {
         }
     }
 
-    async updateScore(req: Request, res: Response, next: NextFunction) { //tested ok
+    async updateScore(req: Request, res: Response, next: NextFunction) {
         const id = (req as any).user;
         const { movieId, newScore } = req.body;
         if (!movieId || !newScore) return res.status(400).json({ message: message.error.MissingFields });
@@ -76,7 +95,7 @@ class ReviewController {
         }
     }
 
-    async getAllByUserId(req: Request, res: Response, next: NextFunction) { //tested ok, it still needs the movie poster path 
+    async getAllByUserId(req: Request, res: Response, next: NextFunction) {
         const id = (req as any).user;
         if(!id) return;
 
@@ -103,7 +122,7 @@ class ReviewController {
         }
     }
 
-    static async getAllByMovieId(movieId: number) { //tested ok
+    static async getAllByMovieId(movieId: number) {
         try {
             const reviews = await ReviewModel.find({ movieId, deleted: false });
             if (reviews.length === 0) return null;
