@@ -7,7 +7,7 @@ class UserController {
         const id = (req as any).user;
         const { newNickname, newEmail, newPassword, urlImage } = req.body;
 
-        if(!id || !newNickname || !newEmail || !newPassword || urlImage) return res.status(400).json({ message: message.error.MissingFields });
+        if(!id && (!newNickname || !newEmail || !newPassword)) return res.status(400).json({ message: message.error.MissingFields });
 
         try {
             const user = await UserModel.findById(id);
@@ -19,10 +19,10 @@ class UserController {
 
             if(nicknameMatch && emailMatch && passwordMatch) return res.status(400).json({ message: message.warning.NoChangesMade });
 
-            user.nickname = newNickname;
-            user.email = newEmail;
-            user.password = newPassword;
-            user.url_image = urlImage;
+            if(newNickname && newNickname !== '') user.nickname = newNickname;
+            if(newEmail && newEmail !== '') user.email = newEmail;
+            if(newPassword && newPassword !== '') user.password = newPassword;
+
             await user.save();
 
             res.status(200).json({ message: message.success.UpdateOk });
@@ -43,72 +43,6 @@ class UserController {
             await user.save();
 
             res.status(200).json({ message: message.success.DeleteOk });
-        } catch (error: any) {
-            return res.status(500).json({ message: error.message });
-        }
-    }
-
-    async updateEmail(req: Request, res: Response, next: NextFunction) {
-        const id = (req as any).user;
-        const { newEmail } = req.body;
-
-        if(!id || !newEmail) return res.status(400).json({ message: message.error.MissingFields });
-
-        try {
-            const user = await UserModel.findById(id);
-            if(!user) return res.status(400).json({ message: message.error.UserNotFound });
-
-            const emailMatch = user.compareEmail(newEmail);
-            if(emailMatch) return res.status(400).json({ message: message.warning.NoChangesMade });
-
-            user.email = newEmail;
-            await user.save();
-
-            res.status(200).json({ message: message.success.UpdateOk });
-        } catch (error: any) {
-            return res.status(500).json({ message: error.message });
-        }
-    }
-
-    async updateNickname(req: Request, res: Response, next: NextFunction) {
-        const id = (req as any).user;
-        const { newNickname } = req.body;
-
-        if(!id || !newNickname) return res.status(400).json({ message: message.error.MissingFields });
-
-        try {
-            const user = await UserModel.findById(id);
-            if(!user) return res.status(400).json({ message: message.error.UserNotFound });
-
-            const nicknameMatch = user.compareNickname(newNickname);
-            if(nicknameMatch) return res.status(400).json({ message: message.warning.NoChangesMade });
-
-            user.nickname = newNickname;
-            await user.save();
-
-            res.status(200).json({ message: message.success.UpdateOk });
-        } catch (error: any) {
-            return res.status(500).json({ message: error.message });
-        }
-    }
-
-    async updatePassword(req: Request, res: Response, next: NextFunction) {
-        const id = (req as any).user;
-        const { newPassword } = req.body;
-
-        if(!id || !newPassword) return res.status(400).json({ message: message.error.MissingFields });
-
-        try {
-            const user = await UserModel.findById(id);
-            if(!user) return res.status(400).json({ message: message.error.UserNotFound });
-
-            const passwordMatch = await user.comparePassword(newPassword);
-            if(passwordMatch) return res.status(400).json({ message: message.warning.NoChangesMade });
-
-            user.password = newPassword;
-            await user.save();
-
-            res.status(200).json({ message: message.success.UpdateOk });
         } catch (error: any) {
             return res.status(500).json({ message: error.message });
         }

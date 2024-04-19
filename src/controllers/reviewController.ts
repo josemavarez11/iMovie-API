@@ -59,42 +59,6 @@ class ReviewController {
         }
     }
 
-    async updateContent(req: Request, res: Response, next: NextFunction) {
-        const id = (req as any).user;
-        const { movieId, newContent } = req.body;
-        if (!movieId || !newContent) return res.status(400).json({ message: message.error.MissingFields });
-
-        try {
-            const review = await ReviewModel.findOne({ user: id, movieId, deleted: false});
-            if (!review) return res.status(400).json({ message: message.error.ReviewNotFound });
-
-            review.content = newContent;
-            await review.save();
-
-            res.status(200).json({ message: message.success.UpdateOk });
-        } catch (error: any) {
-            return res.status(500).json({ message: error.message }); 
-        }
-    }
-
-    async updateScore(req: Request, res: Response, next: NextFunction) {
-        const id = (req as any).user;
-        const { movieId, newScore } = req.body;
-        if (!movieId || !newScore) return res.status(400).json({ message: message.error.MissingFields });
-
-        try {
-            const review = await ReviewModel.findOne({ user: id, movieId, deleted: false});
-            if (!review) return res.status(400).json({ message: message.error.ReviewNotFound });
-
-            review.score = newScore;
-            await review.save();
-
-            res.status(200).json({ message: message.success.UpdateOk });
-        } catch (error: any) {
-            return res.status(500).json({ message: error.message });
-        }
-    }
-
     async getAllByUserId(req: Request, res: Response, next: NextFunction) {
         const id = (req as any).user;
         if(!id) return;
